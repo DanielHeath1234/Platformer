@@ -16,7 +16,7 @@ var Player = function() {
 	
 	this.rotation = 0;
 	
-	this.image.src = "hero.png";
+	this.image.src = "Art/Hero.png";
 };
 
 Player.prototype.update = function(deltaTime){
