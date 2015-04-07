@@ -1,9 +1,8 @@
 var canvas = document.getElementById("gameCanvas");
 
-var Player = function() {
+var Enemy = function() {
 	this.image = document.createElement("img");
 	
-	this.a = new Vector2();
 	this.xPos = canvas.width/2;
 	this.yPos = canvas.height/2;
 	
@@ -17,20 +16,19 @@ var Player = function() {
 	
 	this.rotation = 0;
 	
-	this.image.src = "Art/Hero.png";
+	this.image.src = "Art/HeroI.png";
 };
 
-Player.prototype.update = function(deltaTime){
-	if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true){
-		this.rotation -= deltaTime;
-	}else{
-		this.rotation += deltaTime;
+Enemy.prototype.update = function(deltaTime){
+	if(this.xPos >= canvas.width + (this.width / 2)){
+		this.xPos = 0 - (this.width / 2)
 	}
+	this.xPos += deltaTime * 300;
 }
 
-Player.prototype.draw = function(){
+Enemy.prototype.draw = function(){
 	context.save();
-		context.translate(this.a.xPos, this.a.yPos);
+		context.translate(this.xPos, this.yPos);
 		context.rotate(this.rotation);
 		context.drawImage(this.image, -this.width/2, -this.height/2);
 	context.restore();
