@@ -1,40 +1,65 @@
-var canvas = document.getElementById("gameCanvas");
-
-var Vector2 = function() {
-	this.xPos = canvas.width/2;
-	this.yPos = canvas.height/2;
-};
-
-Vector2.prototype.length = function(){
-	var length = Math.sqrt(Math.pow(this.xPos, 2) + Math.pow(this.yPos, 2));
-	return length;
+//CONSTRUCTOR FUNCTION
+var Vector2 = function()
+{
+	this.x = 0;
+	this.y = 0;
 }
 
-Vector2.prototype.setPos = function(x, y){
-	this.xPos = x;
-	this.yPos = y;
-}
-
-Vector2.prototype.normalize = function(){
-	this.xPos = this.xPos / Vector2.length;
-	this.yPos = this.yPos / Vector2.length;
-}
-
-Vector2.prototype.add = function(V2){
+//ADDITION FUNCTION
+Vector2.prototype.add = function( other_vector )
+{
 	var result = new Vector2();
-	
-	result.xPos = this.xPos + V2.x
-	result.yPos = this.yPos + V2.y
+
+	result.x = this.x + other_vector.x;
+	result.y = this.y + other_vector.y;
 	
 	return result;
 }
 
-Vector2.prototype.subtract = function(x2, y2){
-	this.xPos -= x2;
-	this.yPos -= y2;
+//SUBTRACT FUNCTION
+Vector2.prototype.subtract = function( other_vector )
+{
+	var result = new Vector2();
+	
+	result.x = this.x - other_vector.x;
+	result.y = this.y - other_vector.y;
+	
+	return result;
 }
 
-Vector2.prototype.multiplyScalar = function(num){
-	this.xPos = this.xPos * num;
-	this.yPos = this.yPos * num;
+//MULTIPLY SCALAR
+Vector2.prototype.multiplyScalar = function( scalar )
+{
+	var result = new Vector2();
+	
+	result.x = this.x * scalar;
+	result.y = this.y * scalar;
+	
+	return result;
+}
+
+//LENGTH FUNCTION
+Vector2.prototype.length = function()
+{
+	var result = Math.sqrt(this.x * this.x + this.y * this.y);
+	return result;
+}
+
+//NORMALIZE FUNCTION
+Vector2.prototype.normalize = function()
+{
+	var len = this.length();
+	var result = new Vector2();
+	
+	result.x = this.x / len;
+	result.y = this.y / len;
+	
+	return result;
+}
+
+//SET HELPER
+Vector2.prototype.set = function(x, y)
+{
+	this.x = x;
+	this.y = y;
 }

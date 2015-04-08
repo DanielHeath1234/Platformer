@@ -11,7 +11,7 @@ var endFrameMillis = Date.now();
 var tileset = document.createElement("img");
 tileset.src = "Art/tileset.png";
 
-var LAYER_COUNT = 4;
+var LAYER_COUNT = 6;
 var MAP = {tw:70, th:20};
 var TILE = 35;
 var TILESET_TILE = TILE * 2;
@@ -19,6 +19,13 @@ var TILESET_PADDING = 2;
 var TILESET_SPACING = 2;
 var TILESET_COUNT_X = 14;
 var TILESET_COUNT_Y = 14;
+
+var LAYER_BACKGROUND = 0;
+var LAYER_PLATFORMS = 1;
+var LAYER_DECOR = 2;
+var LAYER_DOOR = 3;
+var LAYER_BREAKABLES = 4;
+var LATER_LADDER = 5;
 
 // This function will return the time in seconds since the function 
 // was last called
@@ -43,6 +50,28 @@ function getDeltaTime()
 	return deltaTime;
 }
 
+var cells = [];
+function initialize(){
+	for(var layerIdx = 0; layerIdx < LAYER_COUNT; layerIdx++){
+		cells[layerIdx] = [];
+		var idx = 0;
+		for(var y = 0; y < MyLevel2.layers[layerIdx].height; y++){
+			cells[layerIdx][y] = [];
+			for(var x = 0; x < MyLevel2.layers[layerIdx].width; x++){
+				if(MyLevel2.layers[layerIdx].data[idx] != 0){
+					cells[layerIdx][y][x] = 1;
+					cells[layerIdx][y-1][x] = 1;
+					cells[layerIdx][y-1][x+1] = 1;
+					cells[layerIdx][y][x+1] = 1;
+				}else if(cells[layerIdx][y][x] != 1){
+					cells[layerIdx][y][x] = 0;
+				}
+				idx++;
+			}
+		}
+	}
+}
+
 /** Axis Aligned Bounding Box checks **/
 function intersects(x1, y1, w1, h1, x2, y2, w2, h2){
 	if(y2 + h2 < y1 || x2 + w2 < x1 || x2 > x1 + w1 || y2 > y1 + h1){
@@ -51,10 +80,33 @@ function intersects(x1, y1, w1, h1, x2, y2, w2, h2){
 		return true;
 }
 
-//-------------------- Don't modify anything above here
-
 var SCREEN_WIDTH = canvas.width;
 var SCREEN_HEIGHT = canvas.height;
+
+function tileToPixel(tileCoord){
+	return tileCoord * TILE;
+}
+
+function pixelToTile(pixel){
+	return Math.floor(pixel / TILE);
+}
+
+function cellAtTileCoord(layer, tx, ty){
+	if(tx<0 || tx>=MAP.tw || ty<0){
+		return 1;
+	}
+	if(ty>=MAP.th){
+		return 0;
+	}
+	return cells[layer][ty][tx];
+}
+
+function cellAtPixelCoord(layer, x, y){
+	var tx = pixelToTile(x);
+	var ty = pixelToTile(y);
+	
+	return cellAtTileCoord(layer, tx, ty);
+}
 
 function drawMap(){
 	for(var layerIdx=0; layerIdx<LAYER_COUNT; layerIdx++){
@@ -73,9 +125,6 @@ function drawMap(){
 	}
 }
 
-// some variables to calculate the Frames Per Second (FPS - this tells use
-// how fast our game is running, and allows us to make the game run at a 
-// constant speed)
 var fps = 0;
 var fpsCount = 0;
 var fpsTime = 0;
@@ -94,12 +143,12 @@ function run()
 		player.draw();
 	}
 	
-	enemy.update(deltaTime);
-	enemy.draw();
+	/*enemy.update(deltaTime);
+	enemy.draw();*/
 	
 	var hit = intersects(player.xPos - player.width / 2, player.yPos - player.height / 2, player.width, player.height, enemy.xPos - enemy.width / 2, enemy.yPos - enemy.height / 2, enemy.width, enemy.height);
 	if(hit == true){
-		player.playerDead = true;
+		//player.playerDead = true;
 	}
 	
 	// update the frame counter 
@@ -118,7 +167,7 @@ function run()
 	context.fillText("FPS: " + fps, 5, 20, 100);
 }
 
-
+initialize();
 //-------------------- Don't modify anything below here
 
 
