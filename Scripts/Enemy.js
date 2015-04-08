@@ -1,11 +1,11 @@
 var canvas = document.getElementById("gameCanvas");
-var flipEnemy = false;
+var flipEnemy = true;
 
 var Enemy = function() {
 	this.image = document.createElement("img");
 	
-	this.xPos = canvas.width/2;
-	this.yPos = canvas.height/2;
+	this.xPos = canvas.width - 10;
+	this.yPos = canvas.height;
 	
 	this.width = 119;
 	this.height = 103;
@@ -16,6 +16,8 @@ var Enemy = function() {
 	this.angularVelocity = 0;
 	
 	this.rotation = 0;
+	
+	this.isDead = false;
 	
 	this.image.src = "Art/HeroI.png";
 };

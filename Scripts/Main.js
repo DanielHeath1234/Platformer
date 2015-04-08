@@ -8,6 +8,18 @@ var context = canvas.getContext("2d");
 var startFrameMillis = Date.now();
 var endFrameMillis = Date.now();
 
+var tileset = document.createElement("img");
+tileset.src = "Art/tileset.png";
+
+var LAYER_COUNT = 4;
+var MAP = {tw:70, th:20};
+var TILE = 35;
+var TILESET_TILE = TILE * 2;
+var TILESET_PADDING = 2;
+var TILESET_SPACING = 2;
+var TILESET_COUNT_X = 14;
+var TILESET_COUNT_Y = 14;
+
 // This function will return the time in seconds since the function 
 // was last called
 // You should only call this function once per frame
@@ -31,11 +43,35 @@ function getDeltaTime()
 	return deltaTime;
 }
 
+/** Axis Aligned Bounding Box checks **/
+function intersects(x1, y1, w1, h1, x2, y2, w2, h2){
+	if(y2 + h2 < y1 || x2 + w2 < x1 || x2 > x1 + w1 || y2 > y1 + h1){
+		return false;
+	}else
+		return true;
+}
+
 //-------------------- Don't modify anything above here
 
 var SCREEN_WIDTH = canvas.width;
 var SCREEN_HEIGHT = canvas.height;
 
+function drawMap(){
+	for(var layerIdx=0; layerIdx<LAYER_COUNT; layerIdx++){
+		var idx = 0;
+		for( var y = 0; y < MyLevel.layers[layerIdx].height; y++ ){
+			for( var x = 0; x < MyLevel.layers[layerIdx].width; x++ ){
+				if( MyLevel.layers[layerIdx].data[idx] != 0 ){
+					var tileIndex = MyLevel.layers[layerIdx].data[idx] - 1;
+					var sx = TILESET_PADDING + (tileIndex % TILESET_COUNT_X) * (TILESET_TILE + TILESET_SPACING);
+					var sy = TILESET_PADDING + (Math.floor(tileIndex / TILESET_COUNT_Y)) * (TILESET_TILE + TILESET_SPACING);
+					context.drawImage(tileset, sx, sy, TILESET_TILE, TILESET_TILE, x*TILE, (y-1)*TILE, TILESET_TILE, TILESET_TILE);
+				}
+				idx++;
+			}
+		}
+	}
+}
 
 // some variables to calculate the Frames Per Second (FPS - this tells use
 // how fast our game is running, and allows us to make the game run at a 
@@ -51,11 +87,20 @@ function run()
 	
 	var deltaTime = getDeltaTime();
 	
-	player.update(deltaTime);
-	player.draw();
+	drawMap();
+	
+	if(!player.playerDead){
+		player.update(deltaTime);
+		player.draw();
+	}
 	
 	enemy.update(deltaTime);
 	enemy.draw();
+	
+	var hit = intersects(player.xPos - player.width / 2, player.yPos - player.height / 2, player.width, player.height, enemy.xPos - enemy.width / 2, enemy.yPos - enemy.height / 2, enemy.width, enemy.height);
+	if(hit == true){
+		player.playerDead = true;
+	}
 	
 	// update the frame counter 
 	fpsTime += deltaTime;

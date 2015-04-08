@@ -1,12 +1,13 @@
 var canvas = document.getElementById("gameCanvas");
 var flipPlayer = false;
+var playerDead = false;
 
 var Player = function() {
 	this.image = document.createElement("img");
 	
 	this.a = new Vector2();
-	this.xPos = canvas.width/2;
-	this.yPos = canvas.height/2;
+	this.xPos = 10;
+	this.yPos = canvas.height;
 	
 	this.width = 119;
 	this.height = 103;
