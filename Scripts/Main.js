@@ -59,10 +59,10 @@ var SCREEN_HEIGHT = canvas.height;
 function drawMap(){
 	for(var layerIdx=0; layerIdx<LAYER_COUNT; layerIdx++){
 		var idx = 0;
-		for( var y = 0; y < MyLevel.layers[layerIdx].height; y++ ){
-			for( var x = 0; x < MyLevel.layers[layerIdx].width; x++ ){
-				if( MyLevel.layers[layerIdx].data[idx] != 0 ){
-					var tileIndex = MyLevel.layers[layerIdx].data[idx] - 1;
+		for( var y = 0; y < MyLevel2.layers[layerIdx].height; y++ ){
+			for( var x = 0; x < MyLevel2.layers[layerIdx].width; x++ ){
+				if( MyLevel2.layers[layerIdx].data[idx] != 0 ){
+					var tileIndex = MyLevel2.layers[layerIdx].data[idx] - 1;
 					var sx = TILESET_PADDING + (tileIndex % TILESET_COUNT_X) * (TILESET_TILE + TILESET_SPACING);
 					var sy = TILESET_PADDING + (Math.floor(tileIndex / TILESET_COUNT_Y)) * (TILESET_TILE + TILESET_SPACING);
 					context.drawImage(tileset, sx, sy, TILESET_TILE, TILESET_TILE, x*TILE, (y-1)*TILE, TILESET_TILE, TILESET_TILE);
@@ -113,8 +113,8 @@ function run()
 	}		
 		
 	// draw the FPS
-	context.fillStyle = "#f00";
-	context.font="14px Arial";
+	context.fillStyle = "#000000";
+	context.font="14px Verdana";
 	context.fillText("FPS: " + fps, 5, 20, 100);
 }
 
