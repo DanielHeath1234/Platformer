@@ -135,6 +135,9 @@ function run()
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	
 	var deltaTime = getDeltaTime();
+	if(deltaTime > 0.03){
+		deltaTime = 0.03;
+	}
 	
 	drawMap();
 	
@@ -143,17 +146,9 @@ function run()
 		player.draw();
 	}
 	
-	context.beginPath();
-	context.rect(player.position.x, player.position.y, TILE, TILE);
-	context.stroke();
-	
-	/*enemy.update(deltaTime);
-	enemy.draw();*/
-	
-	var hit = intersects(player.xPos - player.width / 2, player.yPos - player.height / 2, player.width, player.height, enemy.xPos - enemy.width / 2, enemy.yPos - enemy.height / 2, enemy.width, enemy.height);
-	if(hit == true){
-		//player.playerDead = true;
-	}
+	/*context.beginPath();
+	context.fillStyle = "#FFFFFF";
+	context.fillRect(player.position.x, player.position.y, TILE, TILE);*/
 	
 	// update the frame counter 
 	fpsTime += deltaTime;
