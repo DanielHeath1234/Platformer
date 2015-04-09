@@ -143,6 +143,10 @@ function run()
 		player.draw();
 	}
 	
+	context.beginPath();
+	context.rect(player.position.x, player.position.y, TILE, TILE);
+	context.stroke();
+	
 	/*enemy.update(deltaTime);
 	enemy.draw();*/
 	

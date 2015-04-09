@@ -12,6 +12,7 @@ var Player = function() {
 	this.height = 103;
 	
 	this.jumping = false;
+	this.falling = false;
 	
 	this.velocity = new Vector2();
 	this.angularVelocity = 0;
@@ -43,8 +44,14 @@ Player.prototype.update = function(deltaTime){
 	var jumpForce = 50000;
 	
 	acceleration.y = playerGravity;
+	
+	if(this.velocity.y > 0){
+		this.falling = true;
+	}else{
+		this.falling = false;
+	}
 
-	if(keyboard.isKeyDown(keyboard.KEY_W) && !this.jumping){
+	if(keyboard.isKeyDown(keyboard.KEY_W) && !this.jumping && !this.falling){
 		acceleration.y -= jumpForce;
 		this.jumping = true;
 	}
@@ -64,8 +71,6 @@ Player.prototype.update = function(deltaTime){
 	this.velocity = this.velocity.add(acceleration.multiplyScalar(deltaTime));
 	this.position = this.position.add(this.velocity.multiplyScalar(deltaTime));
 	
-	
-	
 	var tx = pixelToTile(this.position.x);
 	var ty = pixelToTile(this.position.y);
 	
@@ -77,14 +82,14 @@ Player.prototype.update = function(deltaTime){
 	var cellDown = cellAtTileCoord(LAYER_PLATFORMS, tx, ty+1);
 	var cellDiag = cellAtTileCoord(LAYER_PLATFORMS, tx+1, ty+1);
 	
-	if(this.velocity.y > 0){
+	if(this.velocity.y > 0){//down
 		if((cellDown && !cell) || (cellDiag && !cellRight && nx)){
 			this.position.y = tileToPixel(ty);
 			this.velocity.y = 0;
 			this.jumping = false;
 			ny = 0;
 		}
-	}else if(this.velocity.y < 0){
+	}else if(this.velocity.y < 0){//up
 		if((cell && !cellDown) || (cellRight && !cellDiag && nx)){
 			this.position.y = tileToPixel(ty + 1);
 			this.velocity.y = 0;
@@ -97,14 +102,14 @@ Player.prototype.update = function(deltaTime){
 		}
 	}	
 	
-	if(this.velocity.x > 0){
+	if(this.velocity.x > 0){//right
 		if((cellRight && !cell) || (cellDiag && !cellDown && ny)){
 			this.position.x = tileToPixel(tx);
 			this.velocity.x = 0;
 		}
-	}else if(this.velocity.x < 0){
+	}else if(this.velocity.x < 0){//left
 		if((cell && !cellRight) || (cellDown && !cellDiag && ny)){
-			this.position.x = tileToPixel(tx + 1);
+			this.position.x = tileToPixel(tx + 1)/* + TILE / 2*/;
 			this.velocity.x = 0;
 		}
 	}
@@ -116,13 +121,13 @@ Player.prototype.draw = function(){
 			context.translate(this.width, 0);
 			context.translate(this.position.x, this.position.y);
 			context.scale(-1, 1);
-			context.drawImage(this.image, +this.width/2, -this.height/2);
+			context.drawImage(this.image, +this.width/2, -this.height + TILE);
 		context.restore();
 	}else{
 		context.save();
 			context.translate(this.position.x, this.position.y);
 			context.rotate(this.rotation);
-			context.drawImage(this.image, -this.width/2, -this.height/2);
+			context.drawImage(this.image, -this.width/2 + TILE, -this.height + TILE);
 		context.restore();
 	}
 }
