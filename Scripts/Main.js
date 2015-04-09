@@ -151,9 +151,21 @@ function run()
 		enemy.draw();
 	}
 	
-	/*context.beginPath();
-	context.fillStyle = "#FFFFFF";
-	context.fillRect(player.position.x, player.position.y, TILE, TILE);*/
+	//context.beginPath();
+	//context.strokeRect(player.position.x, player.position.y, TILE, TILE);
+	//context.strokeRect(canvas.width / 2, 64, 70, 110);
+	
+	if((player.position.x >= canvas.width / 2 - TILE && player.position.x <= canvas.width / 2 + 70) && (player.position.y >= 64 && player.position.y <= 64 + 110)){
+		context.fillStyle = "#000000";
+		context.font="20px Verdana";
+		context.fillText("Player Wins!", canvas.width / 2, 20, 100);
+	}
+	
+	if((enemy.position.x >= canvas.width / 2 - TILE && enemy.position.x <= canvas.width / 2 + 70) && (enemy.position.y >= 64 && enemy.position.y <= 64 + 110)){
+		context.fillStyle = "#000000";
+		context.font="20px Verdana";
+		context.fillText("Enemy Wins!", canvas.width / 2, 20, 100);
+	}
 	
 	// update the frame counter 
 	fpsTime += deltaTime;
@@ -167,7 +179,7 @@ function run()
 		
 	// draw the FPS
 	context.fillStyle = "#000000";
-	context.font="14px Verdana";
+	context.font="20px Verdana";
 	context.fillText("FPS: " + fps, 5, 20, 100);
 }
 

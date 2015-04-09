@@ -28,7 +28,7 @@ var Enemy = function() {
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [79, 80, 81, 82, 83, 84, 85, 86, 87, 8, 89, 90, 91, 92]);//shoot right
 
 	this.position = new Vector2();
-	this.position.set(canvas.width - 100, canvas.height/2);
+	this.position.set(canvas.width - 55, canvas.height - 100);
 	
 	this.width = 119;
 	this.height = 103;
@@ -45,6 +45,8 @@ var Enemy = function() {
 	this.rotation = 0;
 	
 	this.direction = LEFT;
+	
+	this.lives = 3;
 };
 
 Enemy.prototype.update = function(deltaTime){
