@@ -146,6 +146,11 @@ function run()
 		player.draw();
 	}
 	
+	if(!enemy.playerDead){
+		enemy.update(deltaTime);
+		enemy.draw();
+	}
+	
 	/*context.beginPath();
 	context.fillStyle = "#FFFFFF";
 	context.fillRect(player.position.x, player.position.y, TILE, TILE);*/
