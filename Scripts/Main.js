@@ -1,6 +1,7 @@
 var player = new Player();
 var keyboard = new Keyboard();
 var enemy = new Enemy();
+var bullet = new Bullet();
 
 var canvas = document.getElementById("gameCanvas");
 var context = canvas.getContext("2d");
@@ -26,6 +27,8 @@ var LAYER_DECOR = 2;
 var LAYER_DOOR = 3;
 var LAYER_BREAKABLES = 4;
 var LATER_LADDER = 5;
+
+var shootTimer = 0;
 
 // This function will return the time in seconds since the function 
 // was last called
@@ -131,12 +134,23 @@ var fpsTime = 0;
 
 function run()
 {
+	if(player.shooting){
+		shootTimer = 0.25;
+	}
+
 	context.fillStyle = "#ccc";		
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	
 	var deltaTime = getDeltaTime();
 	if(deltaTime > 0.03){
 		deltaTime = 0.03;
+	}
+	
+	shootTimer -= deltaTime;
+	
+	if(player.shooting && shootTimer < 0){
+		shootTimer = 1 / player.fireRate;
+		player.shootPlayer();
 	}
 	
 	drawMap();
@@ -149,6 +163,39 @@ function run()
 	if(!enemy.playerDead){
 		enemy.update(deltaTime);
 		enemy.draw();
+	}
+	
+	if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true ){
+		bullet.shootPlayer();
+		player.shooting = true;
+	}else{
+		player.shooting = false;
+	}
+	
+	for(var j = 0; j < bullets.length; j++){
+		if(bullets[j].isDead == false){
+			bullets[j].xPos += bullets[j].velocityX * deltaTime;
+			bullets[j].yPos += bullets[j].velocityY * deltaTime;
+			context.drawImage(bullets[j].image, bullets[j].xPos - bullets[j].width / 2, bullets[j].yPos - bullets[j].height / 2);
+			
+			//for(var i = 0; i < asteroids.length; i++){		
+				//if(asteroids[i].isDead == false){
+					//var hit = intersects(bullets[j].xPos - bullets[j].width / 2, bullets[j].yPos - bullets[j].height / 2, bullets[j].width, bullets[j].height, asteroids[i].xPos - asteroids[i].width / 2, asteroids[i].yPos - asteroids[i].height / 2, asteroids[i].width, asteroids[i].height);
+					//if(hit == true){
+						bullets[j].isDead = true;
+						//asteroids[i].isDead = true;
+						//player.score += 1;
+						
+						//if(asteroids[i].size > 1){
+						//	spawnAsteroid(asteroids[i].size - 1, asteroids[i].xPos, asteroids[i].yPos);
+						//	spawnAsteroid(asteroids[i].size - 1, asteroids[i].xPos, asteroids[i].yPos);
+						//}
+					//}
+				//}
+			//}
+		}else{
+			bullets.splice(j, 1);
+		}
 	}
 	
 	//context.beginPath();

@@ -25,7 +25,7 @@ var Player = function() {
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78]);//RIGHT WALK
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 51]);//climb
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]);//shoot left
-	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [79, 80, 81, 82, 83, 84, 85, 86, 87, 8, 89, 90, 91, 92]);//shoot right
+	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92]);//shoot right
 
 	this.position = new Vector2();
 	this.position.set(10, canvas.height - 100);
@@ -39,6 +39,7 @@ var Player = function() {
 	
 	this.jumping = false;
 	this.falling = false;
+	this.shooting = false;
 	
 	this.velocity = new Vector2();
 	
@@ -47,6 +48,7 @@ var Player = function() {
 	this.direction = RIGHT;
 	
 	this.lives = 3;
+	this.fireRate = 5;
 };
 
 Player.prototype.update = function(deltaTime){
