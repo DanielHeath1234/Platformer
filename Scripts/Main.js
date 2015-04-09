@@ -11,7 +11,6 @@ var endFrameMillis = Date.now();
 var tileset = document.createElement("img");
 tileset.src = "Art/tileset.png";
 
-var LAYER_COUNT = 6;
 var MAP = {tw:70, th:20};
 var TILE = 35;
 var TILESET_TILE = TILE * 2;
@@ -20,6 +19,7 @@ var TILESET_SPACING = 2;
 var TILESET_COUNT_X = 14;
 var TILESET_COUNT_Y = 14;
 
+var LAYER_COUNT = 6;
 var LAYER_BACKGROUND = 0;
 var LAYER_PLATFORMS = 1;
 var LAYER_DECOR = 2;

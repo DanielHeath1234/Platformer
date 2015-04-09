@@ -11,6 +11,8 @@ var Player = function() {
 	this.width = 119;
 	this.height = 103;
 	
+	this.jumping = false;
+	
 	this.velocity = new Vector2();
 	this.angularVelocity = 0;
 	
@@ -38,13 +40,13 @@ Player.prototype.update = function(deltaTime){
 	var playerAccel = 3000;
 	var playerDrag = 7;
 	var playerGravity = TILE * 9.8 * 6;
+	var jumpForce = 50000;
+	
 	acceleration.y = playerGravity;
 
-	if(keyboard.isKeyDown(keyboard.KEY_W) == true){
-		acceleration.y -= playerAccel;
-	}
-	if(keyboard.isKeyDown(keyboard.KEY_S) == true){
-		acceleration.y += playerAccel;
+	if(keyboard.isKeyDown(keyboard.KEY_W) && !this.jumping){
+		acceleration.y -= jumpForce;
+		this.jumping = true;
 	}
 	if(keyboard.isKeyDown(keyboard.KEY_A) == true){
 		acceleration.x -= playerAccel;
@@ -62,6 +64,8 @@ Player.prototype.update = function(deltaTime){
 	this.velocity = this.velocity.add(acceleration.multiplyScalar(deltaTime));
 	this.position = this.position.add(this.velocity.multiplyScalar(deltaTime));
 	
+	
+	
 	var tx = pixelToTile(this.position.x);
 	var ty = pixelToTile(this.position.y);
 	
@@ -77,6 +81,7 @@ Player.prototype.update = function(deltaTime){
 		if((cellDown && !cell) || (cellDiag && !cellRight && nx)){
 			this.position.y = tileToPixel(ty);
 			this.velocity.y = 0;
+			this.jumping = false;
 			ny = 0;
 		}
 	}else if(this.velocity.y < 0){
