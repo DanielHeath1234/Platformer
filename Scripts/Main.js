@@ -12,6 +12,12 @@ var endFrameMillis = Date.now();
 var tileset = document.createElement("img");
 tileset.src = "Art/tileset.png";
 
+var heart = document.createElement("img");
+heart.src = "Art/health.png";
+
+var heart2 = document.createElement("img");
+heart2.src = "Art/health2.png";
+
 var MAP = {tw:70, th:20};
 var TILE = 35;
 var TILESET_TILE = TILE * 2;
@@ -26,9 +32,13 @@ var LAYER_PLATFORMS = 1;
 var LAYER_DECOR = 2;
 var LAYER_DOOR = 3;
 var LAYER_BREAKABLES = 4;
-var LATER_LADDER = 5;
+var LAYER_LADDERS = 5;
 
 var shootTimer = 0;
+var gameTimer = 0;
+var textTimer = 0;
+
+var winner = "No winner yet!";
 
 // This function will return the time in seconds since the function 
 // was last called
@@ -111,6 +121,13 @@ function cellAtPixelCoord(layer, x, y){
 	return cellAtTileCoord(layer, tx, ty);
 }
 
+function drawBorderedRect(x, y, width, height, insideColour, borderColour, borderWidth){
+	context.fillStyle = "" + borderColour;
+	context.fillRect(x, y, width, height);
+	context.fillStyle = "" + insideColour;
+	context.fillRect(x + borderWidth, y + borderWidth, width - (borderWidth * 2), height - (borderWidth * 2));
+}
+
 function drawMap(){
 	for(var layerIdx=0; layerIdx<LAYER_COUNT; layerIdx++){
 		var idx = 0;
@@ -147,30 +164,47 @@ function run()
 	}
 	
 	shootTimer -= deltaTime;
+	textTimer += deltaTime * 200;
+	gameTimer += deltaTime;
 	
 	if(player.shooting && shootTimer < 0){
-		shootTimer = 1 / player.fireRate;
-		player.shootPlayer();
+		//shootTimer = 1 / player.fireRate;
+		//player.shootPlayer();
 	}
 	
 	drawMap();
+	drawBorderedRect(0, canvas.height - 100, canvas.width, 100, "black", "White", 5);
 	
-	if(!player.playerDead){
-		player.update(deltaTime);
-		player.draw();
+	if((player.position.x >= canvas.width / 2 - TILE && player.position.x <= canvas.width / 2 + 70) && (player.position.y >= 64 && player.position.y <= 64 + 110) && enemy.isDead){
+		winner = "Player!";
 	}
 	
-	if(!enemy.playerDead){
-		enemy.update(deltaTime);
-		enemy.draw();
+	if((enemy.position.x >= canvas.width / 2 - TILE && enemy.position.x <= canvas.width / 2 + 70) && (enemy.position.y >= 64 && enemy.position.y <= 64 + 110) && player.isDead){
+		winner = "Enemy!";
 	}
 	
-	if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true ){
-		bullet.shootPlayer();
-		player.shooting = true;
-	}else{
-		player.shooting = false;
+	if(textTimer >= canvas.width){
+		textTimer = -100
 	}
+	var text = "Game Time: " + Math.floor(gameTimer) + " || Winner: " + winner;
+	context.beginPath();
+	context.fillStyle = "#FFFFFF";
+	context.font="70px ONYX";
+	context.fillText(text, canvas.width / 2 - 250, canvas.height - 20, canvas.width);
+	
+	for(var i = 0; i < player.lives; i++){
+		context.drawImage(heart, 5 + ((heart.width+5) * i), canvas.height - 85);
+	}
+	
+	for(var i = 0; i < enemy.lives; i++){
+		context.drawImage(heart2, canvas.width - ((heart.width+5) * i) - 78, canvas.height - 85);
+	}
+	
+	player.update(deltaTime);
+	player.draw();
+	
+	enemy.update(deltaTime);
+	enemy.draw();
 	
 	for(var j = 0; j < bullets.length; j++){
 		if(bullets[j].isDead == false){
@@ -182,7 +216,7 @@ function run()
 				//if(asteroids[i].isDead == false){
 					//var hit = intersects(bullets[j].xPos - bullets[j].width / 2, bullets[j].yPos - bullets[j].height / 2, bullets[j].width, bullets[j].height, asteroids[i].xPos - asteroids[i].width / 2, asteroids[i].yPos - asteroids[i].height / 2, asteroids[i].width, asteroids[i].height);
 					//if(hit == true){
-						bullets[j].isDead = true;
+						//bullets[j].isDead = true;
 						//asteroids[i].isDead = true;
 						//player.score += 1;
 						
@@ -202,18 +236,6 @@ function run()
 	//context.strokeRect(player.position.x, player.position.y, TILE, TILE);
 	//context.strokeRect(canvas.width / 2, 64, 70, 110);
 	
-	if((player.position.x >= canvas.width / 2 - TILE && player.position.x <= canvas.width / 2 + 70) && (player.position.y >= 64 && player.position.y <= 64 + 110)){
-		context.fillStyle = "#000000";
-		context.font="20px Verdana";
-		context.fillText("Player Wins!", canvas.width / 2, 20, 100);
-	}
-	
-	if((enemy.position.x >= canvas.width / 2 - TILE && enemy.position.x <= canvas.width / 2 + 70) && (enemy.position.y >= 64 && enemy.position.y <= 64 + 110)){
-		context.fillStyle = "#000000";
-		context.font="20px Verdana";
-		context.fillText("Enemy Wins!", canvas.width / 2, 20, 100);
-	}
-	
 	// update the frame counter 
 	fpsTime += deltaTime;
 	fpsCount++;
@@ -227,7 +249,7 @@ function run()
 	// draw the FPS
 	context.fillStyle = "#000000";
 	context.font="20px Verdana";
-	context.fillText("FPS: " + fps, 5, 20, 100);
+	//context.fillText("FPS: " + fps, 5, 20, 100);
 }
 
 initialize();
