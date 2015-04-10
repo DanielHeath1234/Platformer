@@ -1,7 +1,7 @@
 var player = new Player();
 var keyboard = new Keyboard();
 var enemy = new Enemy();
-var bullet = new Bullet();
+var enemies = new Enemies();
 
 var canvas = document.getElementById("gameCanvas");
 var context = canvas.getContext("2d");
@@ -17,6 +17,15 @@ heart.src = "Art/health.png";
 
 var heart2 = document.createElement("img");
 heart2.src = "Art/health2.png";
+
+var bgMusic = new Howl({
+	urls:["Audio/background.ogg"],
+	loop:true,
+	buffer:true,
+	colume:0.05,
+});
+
+//bgMusic.play();
 
 var MAP = {tw:70, th:20};
 var TILE = 35;
@@ -34,11 +43,11 @@ var LAYER_DOOR = 3;
 var LAYER_BREAKABLES = 4;
 var LAYER_LADDERS = 5;
 
-var shootTimer = 0;
 var gameTimer = 0;
 var textTimer = 0;
 
 var winner = "No winner yet!";
+var gameOverBool = false;
 
 // This function will return the time in seconds since the function 
 // was last called
@@ -128,7 +137,7 @@ function drawBorderedRect(x, y, width, height, insideColour, borderColour, borde
 	context.fillRect(x + borderWidth, y + borderWidth, width - (borderWidth * 2), height - (borderWidth * 2));
 }
 
-function drawMap(){
+function drawMap(/*offsetX, offsetY*/){
 	for(var layerIdx=0; layerIdx<LAYER_COUNT; layerIdx++){
 		var idx = 0;
 		for( var y = 0; y < MyLevel2.layers[layerIdx].height; y++ ){
@@ -137,11 +146,34 @@ function drawMap(){
 					var tileIndex = MyLevel2.layers[layerIdx].data[idx] - 1;
 					var sx = TILESET_PADDING + (tileIndex % TILESET_COUNT_X) * (TILESET_TILE + TILESET_SPACING);
 					var sy = TILESET_PADDING + (Math.floor(tileIndex / TILESET_COUNT_Y)) * (TILESET_TILE + TILESET_SPACING);
+					//var dx = - offsetX;
+					//var dy = - offsetY;
 					context.drawImage(tileset, sx, sy, TILESET_TILE, TILESET_TILE, x*TILE, (y-1)*TILE, TILESET_TILE, TILESET_TILE);
 				}
 				idx++;
 			}
 		}
+	}
+}
+
+function gameOver(){
+	gameOverBool = true;
+	drawBorderedRect(0, 0, canvas.width, canvas.height, "Black", "White", 5);
+	context.fillStyle = "White";
+	context.font = "100px ONYX";
+	context.fillText("Game Over!", canvas.width / 2, canvas.height / 2);
+	context.font = "50px ONYX";
+	if(winner != "No winner yet!"){
+		context.fillText("Congratulations, " + winner, canvas.width / 2, canvas.height / 2 + 50)
+	}else{
+		context.fillText("There was a draw!", canvas.width / 2, canvas.height / 2 + 50)
+	}
+	
+	player.isDead = true;
+	enemy.isDead = true;
+	
+	if(gameTimer >= 0){
+		gameTimer = 0;
 	}
 }
 
@@ -151,10 +183,6 @@ var fpsTime = 0;
 
 function run()
 {
-	if(player.shooting){
-		shootTimer = 0.25;
-	}
-
 	context.fillStyle = "#ccc";		
 	context.fillRect(0, 0, canvas.width, canvas.height);
 	
@@ -163,41 +191,52 @@ function run()
 		deltaTime = 0.03;
 	}
 	
-	shootTimer -= deltaTime;
-	textTimer += deltaTime * 200;
 	gameTimer += deltaTime;
-	
-	if(player.shooting && shootTimer < 0){
-		//shootTimer = 1 / player.fireRate;
-		//player.shootPlayer();
-	}
 	
 	drawMap();
 	drawBorderedRect(0, canvas.height - 100, canvas.width, 100, "black", "White", 5);
-	
-	if((player.position.x >= canvas.width / 2 - TILE && player.position.x <= canvas.width / 2 + 70) && (player.position.y >= 64 && player.position.y <= 64 + 110) && enemy.isDead){
-		winner = "Player!";
+	 
+		if(enemy.isDead){
+			winner = "Player!";
+			gameOver();
+		}else{
+			context.fillStyle = "black";
+			context.font = "100px ONYX";
+			context.fillText("Locked!", player.position.x + player.width / 2 + 10, player.position.y);
+		}
 	}
 	
-	if((enemy.position.x >= canvas.width / 2 - TILE && enemy.position.x <= canvas.width / 2 + 70) && (enemy.position.y >= 64 && enemy.position.y <= 64 + 110) && player.isDead){
-		winner = "Enemy!";
+	if(gameOverBool){
+		gameOver();
 	}
 	
-	if(textTimer >= canvas.width){
-		textTimer = -100
+	if((enemy.position.x >= canvas.width / 2 - TILE && enemy.position.x <= canvas.width / 2 + 70) && (enemy.position.y >= 64 && enemy.position.y <= 64 + 110)){
+		if(player.isDead){
+			winner = "Enemy!";
+			gameOver();
+		}else{
+			context.fillStyle = "black";
+			context.font = "100px ONYX";
+			context.fillText("Locked!", enemy.position.x + enemy.width / 2 + 10, enemy.position.y);
+		}
 	}
+	
 	var text = "Game Time: " + Math.floor(gameTimer) + " || Winner: " + winner;
 	context.beginPath();
 	context.fillStyle = "#FFFFFF";
 	context.font="70px ONYX";
-	context.fillText(text, canvas.width / 2 - 250, canvas.height - 20, canvas.width);
+	if(!gameOverBool){
+		context.fillText(text, canvas.width / 2 - 250, canvas.height - 20);
+	}
 	
 	for(var i = 0; i < player.lives; i++){
-		context.drawImage(heart, 5 + ((heart.width+5) * i), canvas.height - 85);
+		if(!gameOverBool)
+			context.drawImage(heart, player.position.x + player.width/ 2 - ((heart.width+5) * i) - 15, player.position.y - player.height - 15);
 	}
 	
 	for(var i = 0; i < enemy.lives; i++){
-		context.drawImage(heart2, canvas.width - ((heart.width+5) * i) - 78, canvas.height - 85);
+		if(!gameOverBool)
+			context.drawImage(heart2, enemy.position.x + enemy.width/ 2 - ((heart.width+5) * i) - 15, enemy.position.y - enemy.height - 15);
 	}
 	
 	player.update(deltaTime);
@@ -206,31 +245,8 @@ function run()
 	enemy.update(deltaTime);
 	enemy.draw();
 	
-	for(var j = 0; j < bullets.length; j++){
-		if(bullets[j].isDead == false){
-			bullets[j].xPos += bullets[j].velocityX * deltaTime;
-			bullets[j].yPos += bullets[j].velocityY * deltaTime;
-			context.drawImage(bullets[j].image, bullets[j].xPos - bullets[j].width / 2, bullets[j].yPos - bullets[j].height / 2);
-			
-			//for(var i = 0; i < asteroids.length; i++){		
-				//if(asteroids[i].isDead == false){
-					//var hit = intersects(bullets[j].xPos - bullets[j].width / 2, bullets[j].yPos - bullets[j].height / 2, bullets[j].width, bullets[j].height, asteroids[i].xPos - asteroids[i].width / 2, asteroids[i].yPos - asteroids[i].height / 2, asteroids[i].width, asteroids[i].height);
-					//if(hit == true){
-						//bullets[j].isDead = true;
-						//asteroids[i].isDead = true;
-						//player.score += 1;
-						
-						//if(asteroids[i].size > 1){
-						//	spawnAsteroid(asteroids[i].size - 1, asteroids[i].xPos, asteroids[i].yPos);
-						//	spawnAsteroid(asteroids[i].size - 1, asteroids[i].xPos, asteroids[i].yPos);
-						//}
-					//}
-				//}
-			//}
-		}else{
-			bullets.splice(j, 1);
-		}
-	}
+	//enemies.update(deltaTime);
+	//enemies.draw();
 	
 	//context.beginPath();
 	//context.strokeRect(player.position.x, player.position.y, TILE, TILE);

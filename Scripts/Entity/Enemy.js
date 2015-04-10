@@ -23,7 +23,7 @@ var Enemy = function() {
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [60, 61, 62, 63, 64]);//RIGHT JUMP
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78]);//RIGHT WALK
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 51]);//climb
-	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]);//shoot left
+	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]);//shoot left
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92]);//shoot right
 
 	this.position = new Vector2();
@@ -45,6 +45,9 @@ var Enemy = function() {
 	this.shooting = false;
 	this.climbing = false;
 	
+	this.bulletTimer1 = 0;
+	this.bullets1 = [];
+	
 	this.velocity = new Vector2();
 	
 	this.rotation = 0;
@@ -57,6 +60,7 @@ var Enemy = function() {
 Enemy.prototype.update = function(deltaTime){
 	if(!this.isDead){
 		this.sprite.update(deltaTime);
+		this.bulletTimer1 -= deltaTime;
 		
 		var acceleration = new Vector2();
 		var EnemyAccel = 3000;
@@ -86,7 +90,20 @@ Enemy.prototype.update = function(deltaTime){
 			this.direction = RIGHT;
 			if(this.sprite.currentAnimation != ANIM_WALK_RIGHT && this.jumping == false && this.falling == false)
 				this.sprite.setAnimation(ANIM_WALK_RIGHT);
-		}else{
+		}else if(keyboard.isKeyDown(101) == true ){
+			if ( this.bulletTimer1 < 0 ){
+				this.bullets1.push(new Bullet(this.position.x, this.position.y, this.direction));
+				this.bulletTimer1 = 0.25;
+			}
+			if(this.direction == LEFT){  
+				if(this.sprite.currentAnimation != ANIM_SHOOT_LEFT){
+					this.sprite.setAnimation(ANIM_SHOOT_LEFT);
+				}	
+			}else{
+				if(this.sprite.currentAnimation != ANIM_SHOOT_RIGHT){
+					this.sprite.setAnimation(ANIM_SHOOT_RIGHT);
+				}	
+			}}else{
 			if(this.jumping == false && this.falling == false){
 				if(this.direction == LEFT){
 					if(this.sprite.currentAnimation != ANIM_IDLE_LEFT)
@@ -195,10 +212,23 @@ Enemy.prototype.update = function(deltaTime){
 			}
 		}
 	}
+	for ( var b = 0 ; b < this.bullets1.length ; ++b)
+	{
+		this.bullets1[b].update(deltaTime);
+		
+		if ( this.bullets1[b].isDead )
+		{
+			this.bullets1[b] = this.bullets1[this.bullets1.length-1];
+			this.bullets1.length -= 1;
+		}
+	}
 }
 
 Enemy.prototype.draw = function(){
 	if(!this.isDead){
 		this.sprite.draw(context, this.position.x, this.position.y);
+		for (var b = 0; b < this.bullets1.length; b++){
+			this.bullets1[b].draw();
+		}
 	}
 }

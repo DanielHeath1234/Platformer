@@ -1,5 +1,4 @@
 var canvas = document.getElementById("gameCanvas");
-var playerDead = false;
 
 var LEFT = 0;
 var RIGHT = 1;
@@ -24,11 +23,14 @@ var Player = function() {
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [60, 61, 62, 63, 64]);//RIGHT JUMP
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78]);//RIGHT WALK
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 51]);//climb
-	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41]);//shoot left
+	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]);//shoot left
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05, [79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92]);//shoot right
 
 	this.position = new Vector2();
 	this.position.set(10, canvas.height - 200);
+	
+	this.startPos = new Vector2();
+	this.startPos.set(10, canvas.height - 200)
 	
 	this.width = 119;
 	this.height = 103;
@@ -45,6 +47,8 @@ var Player = function() {
 	this.falling = false;
 	this.shooting = false;
 	this.climbing = false;
+	this.bulletTimer = 0;
+	this.bullets = [];
 	
 	this.velocity = new Vector2();
 	
@@ -53,12 +57,12 @@ var Player = function() {
 	this.direction = RIGHT;
 	
 	this.lives = 3;
-	this.fireRate = 5;
 };
 
 Player.prototype.update = function(deltaTime){
 	if(!this.isDead){
 		this.sprite.update(deltaTime);
+		this.bulletTimer -= deltaTime;
 		
 		var acceleration = new Vector2();
 		var playerAccel = 3000;
@@ -89,8 +93,19 @@ Player.prototype.update = function(deltaTime){
 			if(this.sprite.currentAnimation != ANIM_WALK_RIGHT && this.jumping == false && this.falling == false)
 				this.sprite.setAnimation(ANIM_WALK_RIGHT);
 		}else if(keyboard.isKeyDown(keyboard.KEY_SPACE) == true ){
-			bullet.shootPlayer();
-			player.shooting = true;
+			if ( this.bulletTimer < 0 ){
+				this.bullets.push(new Bullet(this.position.x, this.position.y, this.direction));
+				this.bulletTimer = 0.25;
+			}
+			if(this.direction == LEFT){  
+				if(this.sprite.currentAnimation != ANIM_SHOOT_LEFT){
+					this.sprite.setAnimation(ANIM_SHOOT_LEFT);
+				}	
+			} else{
+				if(this.sprite.currentAnimation != ANIM_SHOOT_RIGHT){
+					this.sprite.setAnimation(ANIM_SHOOT_RIGHT);
+				}	
+			}
 		}else{
 			player.shooting = false;
 			if(this.jumping == false && this.falling == false){
@@ -203,10 +218,34 @@ Player.prototype.update = function(deltaTime){
 			}
 		}
 	}
+	
+	//loop over all the bullets
+	//call update on them
+	//if they need to die, remove them from the array
+	for ( var b = 0 ; b < this.bullets.length ; ++b)
+	{
+		this.bullets[b].update(deltaTime);
+		
+		if ( this.bullets[b].isDead )
+		{
+			this.bullets[b] = this.bullets[this.bullets.length-1];
+			this.bullets.length -= 1;
+		}
+	}
+	
+	
+	
 }
 
 Player.prototype.draw = function(){
 	if(!this.isDead){
-		this.sprite.draw(context, this.position.x, this.position.y);
+		this.sprite.draw(context, this.position.x, this.position.y + 10);
+		
+		//loop over all the bullets
+		//call draw on them
+		for (var b = 0; b < this.bullets.length; b++){
+			this.bullets[b].draw();
+		}
+		
 	}
 }
