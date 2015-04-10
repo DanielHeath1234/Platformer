@@ -193,9 +193,17 @@ function run()
 	
 	gameTimer += deltaTime;
 	
+	for (var b = 0; b < player.bullets.length; b++){
+		var hitp = intersects(player.bullets[b].xPos - player.bullets[b].width / 2, player.bullets[b].yPos - player.bullets[b].height / 2, player.bullets[b].width, player.bullets[b].height,enemy.position.x - enemy.width / 2, enemy.position.y - enemy.height / 2, enemy.width, enemy.height);
+		if(hitp == true){
+			//enemy.lives -= 1;
+		}
+	}
+	
 	drawMap();
 	drawBorderedRect(0, canvas.height - 100, canvas.width, 100, "black", "White", 5);
-	 
+	
+	if((player.position.x >= canvas.width / 2 - TILE && player.position.x <= canvas.width / 2 + 70) && (player.position.y >= 64 && player.position.y <= 64 + 110)){
 		if(enemy.isDead){
 			winner = "Player!";
 			gameOver();
